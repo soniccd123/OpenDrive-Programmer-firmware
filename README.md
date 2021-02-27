@@ -3,6 +3,7 @@ The firmware needed by the OpenDrive Programmer MCU
 
 It handles all necessary signaling for reading and writing the flashcart. Not much to say about it, mostly interesting to programmers and to learn about.
 
+For those that just want to write the firmware to the STM32, the compiled binary is in the "bin" folder.
 Needs a STLink to be written to the STM32.
 
 Sugestions are welcome!

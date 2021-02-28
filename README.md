@@ -8,6 +8,11 @@ Needs a STLink to be written to the STM32.
 
 Sugestions are welcome!
 
+# Other repositories of the same family
+- OpenDrive Genesis: https://github.com/soniccd123/OpenDrive-Genesis
+- OpenDrive Programmer: https://github.com/soniccd123/OpenDrive-Programmer
+- OpenDrive Editor: https://github.com/soniccd123/OpenDrive-Editor
+
 # Documentation
 OpenDrive software technical doc, in constant work, sugestions are welcome: https://docs.google.com/document/d/e/2PACX-1vTmDYSAzNN42UEBrs5ZHOusQm1tyw1JYH-T3Jn8RS0lmKWKF3bleVGRRRoMs-G0P8nS-jN8Rljs9-GX/pub
 

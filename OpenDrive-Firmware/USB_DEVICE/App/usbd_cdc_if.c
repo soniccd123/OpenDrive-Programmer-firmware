@@ -38,7 +38,7 @@ extern int next_block;
 extern int ready;
 extern int cont;
 int copy;
-extern uint8_t mem_buffer[513];
+extern uint8_t mem_buffer[512];
 extern uint8_t write_buffer[256];
 extern int buffer_addr;
 extern int buffer_write_addr;
@@ -296,7 +296,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 
   if (next_block == 1)
 	{
-		copy;
+		copy=0;
 		while (copy < 64)
 		{
 			write_buffer[buffer_write_addr] = Buf[copy];

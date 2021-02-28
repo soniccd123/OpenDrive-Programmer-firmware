@@ -467,21 +467,21 @@ int main(void)
 
 	  	  if (mode_control == writeFlash_mode) //Write file to Flash
 	  	  {
+	  		  reset_addr();	//Reset address counter to 0
+	  		  switch_to_flash(); //Map full Flash range to address space and hide FeRAM
+
 	  		  GPIOA->CRL = port_write;	//Set GPIOA data pins as output
 	  		  GPIOB->CRH = port_write;	//Set GPIOB data pins as output
 	  		  uint32_t blocks = mem_buffer[1] | (mem_buffer[2] << 8) | (mem_buffer[3] << 16);	//Parse the 3byte file size in blocks to a uint32 var
-
-	  		  reset_addr();	//Reset address counter to 0
-
-	  		  switch_to_flash(); //Map full Flash range to address space and hide FeRAM
 
 	  		  HAL_GPIO_WritePin(GPIOB, WE_Pin, 1);	//Disable WE, important for correct waveform
 	  		  HAL_GPIO_WritePin(GPIOB, OE_Pin, 1); 	//Disable Flash output, set cart level-shifter toward Flash chip
 	  		  HAL_GPIO_WritePin(GPIOB, DIR_Pin, 1);	//Set Programmer data bus toward the Cartridge
 	  		  HAL_GPIO_WritePin(GPIOB, ADDR_5555_Pin, 0);	//Pull down 0x5555
 	  		  HAL_GPIO_WritePin(GPIOB, ADDR_2AAA_Pin, 0); 	//Pull down 0x5555
-	  		  HAL_GPIO_WritePin(GPIOC, ADDR_EN_Pin, 1);	//Disable address counter output, will be important later
+	  		  HAL_GPIO_WritePin(GPIOC, ADDR_EN_Pin, 0);	//Disable address counter output, will be important later
 	  		  HAL_GPIO_WritePin(GPIOC, STATUS_LED_Pin, 0);	//Turn status LED on signaling the user of operation start
+	  		  ready = 0;
 
 	  		  uint32_t loop = 0;		//Initiate a block writing loop using the
 	  		  while (loop < blocks)		//file size in blocks received earlier
@@ -491,15 +491,14 @@ int main(void)
 	  			  command_2AAA(0x55);	//the Flash internal controller in
 	  			  command_5555(0xA0);	//write mode
 
-
 	  			  HAL_GPIO_WritePin(GPIOC, ADDR_EN_Pin, 0);	//Enable address counter output
 	  			  HAL_GPIO_WritePin(GPIOB, ADDR_2AAA_Pin, 0); //Pulls 0x2AAA down essentialy disabling it
 	  			  HAL_GPIO_WritePin(GPIOB, ADDR_5555_Pin, 0); //Pulls 0x5555 down essentialy disabling it
-	  			  buffer_write();	//Calls this function, it writes the whole 256byte buffer to the Flash
 
+	  			  buffer_write();	//Calls this function, it writes the whole 256byte buffer to the Flash
 	  			  loop=loop+1;	//Increase by one block
 
-	  			  HAL_GPIO_WritePin(GPIOB, OE_Pin, 0); //Not sure why i've done this, may not be necessary, must test
+	  			  //HAL_GPIO_WritePin(GPIOB, OE_Pin, 0); //Not sure why i've done this, may not be necessary, must test
 	  			  delay_us(3000);	//A nice delay, needed for whatever reason to the write not have glitches, the polling function should have this function, but i must messed up something
 	  			  polling();	//Waits for the 0x80 write completed signal from the Flash
 	  		  }
@@ -511,14 +510,14 @@ int main(void)
 
 	  	  if (mode_control == writeFeram_mode) //Write file to FeRAM
 	  	  {
-	  		  GPIOA->CRL = port_write;	//Set GPIOA data pins as output
-	  		  GPIOB->CRH = port_write;	//Set GPIOB data pins as output
-	  		  uint32_t blocks = mem_buffer[1] | (mem_buffer[2] << 8) | (mem_buffer[3] << 16);	//Parse the 3byte file size in blocks to a uint32 var
-
 	  		  reset_addr();	//Reset address counter to 0
 
 	  		  switch_to_sram();	//Map FeRAM to 0x100000
 	  		  goto_addr(FERAM_ADDR);	//Set Address counter to FeRAM first address
+
+	  		  GPIOA->CRL = port_write;	//Set GPIOA data pins as output
+	  		  GPIOB->CRH = port_write;	//Set GPIOB data pins as output
+	  		  uint32_t blocks = mem_buffer[1] | (mem_buffer[2] << 8) | (mem_buffer[3] << 16);	//Parse the 3byte file size in blocks to a uint32 var
 
 	  		  HAL_GPIO_WritePin(GPIOB, CE_Pin, 1); //Disable CE, important for the FeRAM
 	  		  HAL_GPIO_WritePin(GPIOB, WE_Pin, 1);	//Disable WE, important for correct waveform
@@ -571,7 +570,7 @@ int main(void)
 
 	  		  HAL_GPIO_WritePin(GPIOB, OE_Pin, 0); //SET READ
 	  		  HAL_GPIO_WritePin(GPIOB, DIR_Pin, 0); //SET DIR READ
-	  		  HAL_Delay(100);
+	  		  HAL_Delay(1000);
 
 	  		  mem_buffer[0] = (GPIOA->IDR & 0x00FF);
 	  		  mem_buffer[1] = (GPIOB->IDR & 0xFF00)>>8;
@@ -600,7 +599,7 @@ int main(void)
 
 	  		  HAL_GPIO_WritePin(GPIOB, OE_Pin, 0); //SET READ
 	  		  HAL_GPIO_WritePin(GPIOB, DIR_Pin, 0); //SET DIR READ
-	  		  HAL_Delay(100);
+	  		  HAL_Delay(1000);
 
 	  		  mem_buffer[0] = (GPIOA->IDR & 0x00FF);
 	  		  mem_buffer[1] = (GPIOB->IDR & 0xFF00)>>8;
@@ -630,7 +629,7 @@ int main(void)
 
 	  		  HAL_GPIO_WritePin(GPIOB, OE_Pin, 0); //SET READ
 	  		  HAL_GPIO_WritePin(GPIOB, DIR_Pin, 0); //SET DIR READ
-	  		  HAL_Delay(100);
+	  		  HAL_Delay(1000);
 
 	  		  mem_buffer[0] = (GPIOA->IDR & 0x00FF);
 	  		  mem_buffer[1] = (GPIOB->IDR & 0xFF00)>>8;
